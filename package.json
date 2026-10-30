@@ -27,6 +27,7 @@
     "test:e2e:dev": "E2E_BASE_URL=http://localhost:4321 playwright test",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "demo:record": "node assets/record-demo.mjs",
     "db:up": "docker compose up -d --wait postgres",
     "db:reset": "docker compose exec postgres sh -c \"dropdb -U postgres --force --if-exists postgres && createdb -U postgres postgres\"",
     "auth:migrate": "auth migrate --config ./src/lib/auth-server.ts",

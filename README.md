@@ -4,6 +4,10 @@ A fullstack starter: **Astro** SSR with **React** islands driven by **TanStack R
 
 The demo app is a tiny **guestbook**: a public list of entries, entry pages, sign-up/sign-in, an auth-only composer, "my entries", and optimistic likes counted by a Postgres trigger. Every feature exists to show one part of the stack — see [ARCHITECTURE.md](ARCHITECTURE.md). Working with a coding agent? [AGENTS.md](AGENTS.md) has the rules and recipes (`CLAUDE.md` imports it).
 
+![The guestbook: liking an entry, signing the guestbook, and seeing the new entry on top of the list](assets/demo-desktop.gif)
+
+Also on a phone: [demo-mobile.gif](assets/demo-mobile.gif) · MP4s: [desktop](assets/demo-desktop.mp4), [mobile](assets/demo-mobile.mp4)
+
 ## Stack
 
 |            |                                                                                                                          |
@@ -22,12 +26,14 @@ The demo app is a tiny **guestbook**: a public list of entries, entry pages, sig
 Requires Node 24, pnpm and Docker.
 
 ```bash
-pnpm install
+pnpm install                # also points git at .githooks (see below)
 cp .env.example .env        # then set BETTER_AUTH_SECRET (openssl rand -base64 32)
 pnpm db:up                  # Postgres in Docker, on localhost:54320
 pnpm db:migrate             # better-auth tables, then Kysely migrations (+ seed), then codegen
 pnpm dev                    # http://localhost:4321
 ```
+
+> **Heads-up: `pnpm install` changes your git config for this repo.** The `prepare` script runs `git config core.hooksPath .githooks`, which writes to this clone's `.git/config` (not your global config). From then on, git runs only the hooks in `.githooks/` — currently a pre-commit hook that runs `pnpm lint` — and ignores any hooks in `.git/hooks/` or a global `core.hooksPath` for this repo. Skip the hook once with `git commit --no-verify`; opt out entirely with `git config --unset core.hooksPath`.
 
 ## Commands
 
@@ -40,6 +46,7 @@ pnpm test                   # Vitest units (src/**/*.test.ts)
 pnpm test:e2e               # Playwright against the Docker test stack (builds + boots it if needed)
 pnpm test:e2e:dev           # Playwright against `pnpm dev` instead
 pnpm storybook              # http://localhost:6006
+pnpm demo:record [mobile|desktop]  # assets/demo-*.gif/.mp4 + screenshot-*.png (both if no arg)
 
 pnpm db:init                # drop + recreate the dev DB, then migrate (+ seed)
 pnpm db:migrate             # auth migrate → kysely migrate to latest → db:codegen
@@ -49,6 +56,10 @@ pnpm db:timestamp           # a prefix for a new migration file name
 pnpm image:build            # build the production image (astro-tanstack-kysely-starter:local)
 pnpm e2e:up / e2e:down      # boot / tear down the test stack (app on :4400)
 ```
+
+### Recording the demo
+
+`pnpm demo:record` drives the running dev server with Playwright and writes the GIF, MP4 and screenshot into `assets/`. It needs ffmpeg (`brew install ffmpeg`). It records against the first page of entries and likes a seed entry, so run it on a freshly seeded DB (`pnpm db:init`, which wipes the dev DB). Leftover test entries would otherwise push the seed entries off the page. Each take signs up a throwaway `demo-…@example.test` user and removes its entry and like afterwards. Set `DEMO_BASE_URL` to record another local stack. Never point it at production.
 
 ## Layout
 

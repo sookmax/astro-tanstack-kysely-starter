@@ -20,3 +20,6 @@ playwright-report
 **/*.stories.*
 
 **/.DS_Store
+
+# demo recordings are for the README only
+assets

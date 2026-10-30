@@ -16,7 +16,7 @@ pnpm test:e2e                   # Playwright against the production Docker image
 pnpm format                     # Prettier
 ```
 
-The pre-commit hook runs `pnpm lint`. There is no separate `tsc` step: oxlint does type checking for `.ts`/`.tsx`, `astro check` for `.astro`.
+`pnpm install` runs the `prepare` script, which sets `core.hooksPath` to `.githooks` in this clone's git config (overriding `.git/hooks/` and any global hooks path). The pre-commit hook there runs `pnpm lint`, so a commit fails on lint or type errors — fix them rather than reaching for `--no-verify`. Don't change or unset `core.hooksPath` yourself. There is no separate `tsc` step: oxlint does type checking for `.ts`/`.tsx`, `astro check` for `.astro`.
 
 ## Rules that matter
 

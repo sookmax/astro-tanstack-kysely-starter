@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useHydrated } from "../hooks/useHydrated";
 
 // Dev only. `import.meta.env.PROD` is replaced with `true` in the production
@@ -22,8 +22,22 @@ const QueryDevtools = import.meta.env.PROD
 
 export function DevTools() {
   // client-only, so the SSR markup never includes them (no hydration mismatch)
-  const isClient = useHydrated();
-  if (!isClient) return null;
+  const isHydrated = useHydrated();
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    // @ts-expect-error only used in browser devtools console
+    window.toggleDevTools = () => {
+      setShow((show) => !show);
+    };
+
+    return () => {
+      // @ts-expect-error only used in browser devtools console
+      delete window.toggleDevTools;
+    };
+  }, []);
+
+  if (!isHydrated || !show) return null;
 
   return (
     <Suspense fallback={null}>
