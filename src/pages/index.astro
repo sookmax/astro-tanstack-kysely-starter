@@ -1,0 +1,18 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import ReactServerEntry from "@/components/ReactServerEntry.astro";
+import { getQueryClient } from "@/lib/query-common";
+import { getEntryListOptions } from "@/lib/query-server";
+
+// Direct hit: fill the cache from the DB with the request's identity, under the
+// same key the route's client options use. ReactServerEntry renders with it
+// and ships it down; the route's beforeLoad then finds it already cached.
+const queryClient = getQueryClient();
+await queryClient.infiniteQuery(
+  getEntryListOptions(Astro.locals.user?.id ?? null),
+);
+---
+
+<Layout>
+  <ReactServerEntry queryClient={queryClient} />
+</Layout>

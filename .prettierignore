@@ -1,0 +1,3 @@
+pnpm-lock.yaml
+src/db/schema.ts
+src/react/routeTree.gen.ts

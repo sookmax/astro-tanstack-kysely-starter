@@ -1,0 +1,11 @@
+{
+  "tailwindCSS.classFunctions": ["cn"],
+  "files.readonlyInclude": {
+    "**/routeTree.gen.ts": true,
+    "src/db/schema.ts": true
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.oxc": "always"
+  },
+  "js/ts.experimental.useTsgo": false
+}

@@ -1,0 +1,22 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { ErrorView } from "@/react/components/ErrorView";
+import { AppError } from "@/utils/error";
+
+// Show our own AppError messages; anything else only in dev — a raw error
+// message or stack never reaches users in production.
+const { error } = Astro.props;
+const statusCode = error instanceof AppError ? error.statusCode : 500;
+const message =
+  error instanceof AppError
+    ? error.message
+    : error instanceof Error && import.meta.env.DEV
+      ? error.message
+      : undefined;
+---
+
+<Layout title="Error · Guestbook">
+  <main class="mx-auto w-full max-w-xl px-4 py-10">
+    <ErrorView statusCode={statusCode} message={message} />
+  </main>
+</Layout>

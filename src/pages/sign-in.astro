@@ -1,0 +1,17 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import ReactServerEntry from "@/components/ReactServerEntry.astro";
+import { safeRedirect } from "@/utils/safeRedirect";
+
+// Already signed in → straight on (the route's beforeLoad mirrors this).
+if (Astro.locals.user) {
+  // `void` works around astro check flagging an import used only in an early
+  // return as unused: https://github.com/withastro/astro/issues/14684
+  void safeRedirect;
+  return Astro.redirect(safeRedirect(Astro.url.searchParams.get("redirect")));
+}
+---
+
+<Layout title="Sign in · Guestbook" noindex>
+  <ReactServerEntry />
+</Layout>

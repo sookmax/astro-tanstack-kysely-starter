@@ -1,0 +1,28 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import ReactServerEntry from "@/components/ReactServerEntry.astro";
+import { getQueryClient } from "@/lib/query-common";
+import { getEntryOptions } from "@/lib/query-server";
+import { EntryIdSchema } from "@/lib/schemas/entryParams.schema";
+
+const id = EntryIdSchema.safeParse(Astro.params.id);
+if (!id.success) {
+  return Astro.rewrite("/404");
+}
+
+const queryClient = getQueryClient();
+// query() returns the data, so the not-found check needs no getQueryData.
+const entry = await queryClient.query(
+  getEntryOptions(id.data, Astro.locals.user?.id ?? null),
+);
+
+// A missing entry is a real 404 response, decided here — the router never
+// renders for it.
+if (!entry) {
+  return Astro.rewrite("/404");
+}
+---
+
+<Layout title={`${entry.author?.name ?? "Guestbook"} · Guestbook`}>
+  <ReactServerEntry queryClient={queryClient} />
+</Layout>

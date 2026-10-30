@@ -1,0 +1,67 @@
+services:
+  # Dev + test database. `pnpm db:up` (or plain `docker compose up`) starts only
+  # this service; the app below sits behind the `test` profile.
+  postgres:
+    image: postgres:18
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "${DB_PORT-54320}:5432"
+    volumes:
+      # Postgres 18 images keep PGDATA under /var/lib/postgresql/18/docker and
+      # declare the VOLUME at /var/lib/postgresql — mount there, not .../data.
+      # https://github.com/docker-library/postgres/pull/1259
+      - postgres_data:/var/lib/postgresql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # --- e2e app (profile: test) -----------------------------------------------
+  # Runs the production image itself (built by ./build-image.sh as :local), so
+  # Playwright tests the artifact you'd ship; only the runtime env differs. Use
+  # `pnpm e2e:up`, which orders the steps:
+  #   1. pnpm image:build
+  #   2. start postgres + wait until healthy
+  #   3. pnpm db:init from the host (reset + migrate + seed) — a clean DB
+  #   4. start the app last, against a ready DB
+  app:
+    profiles: ["test"]
+    image: astro-tanstack-kysely-starter:local
+    # :local exists only in the local daemon (build-image.sh) — never pull it
+    pull_policy: never
+    # Secrets (BETTER_AUTH_SECRET, …) come from the same .env as dev.
+    env_file:
+      - .env
+    # Only what must differ inside the container; `environment` wins over
+    # `env_file`, so DATABASE_URL points at the compose service, not localhost.
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/postgres
+      - HOST=0.0.0.0
+      - PORT=4321
+      # Test-only relaxations in auth-server.ts (insecure cookies over plain
+      # http, better-auth's rate limiter off). Never set this in production.
+      - SERVER_ENV=test
+    ports:
+      - "${APP_PORT-4400}:4321"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # the image has node but no curl → probe with node's global fetch
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:4321/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  postgres_data:

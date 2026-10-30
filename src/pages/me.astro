@@ -1,0 +1,19 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import ReactServerEntry from "@/components/ReactServerEntry.astro";
+import { getQueryClient } from "@/lib/query-common";
+import { getMyEntriesOptions } from "@/lib/query-server";
+
+if (!Astro.locals.user) {
+  return Astro.redirect(
+    `/sign-in?redirect=${encodeURIComponent(Astro.url.pathname)}`,
+  );
+}
+
+const queryClient = getQueryClient();
+await queryClient.infiniteQuery(getMyEntriesOptions(Astro.locals.user.id));
+---
+
+<Layout title="My entries · Guestbook" noindex>
+  <ReactServerEntry queryClient={queryClient} />
+</Layout>

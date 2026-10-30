@@ -1,0 +1,22 @@
+# deps & build artifacts (installed/produced inside the image)
+**/node_modules
+**/dist
+**/.astro
+**/storybook-static
+
+# secrets & local env (runtime env comes from the container platform)
+**/.env
+**/.env.*
+!.env.example
+
+# vcs, tooling, editor, tests
+.git
+.githooks
+.vscode
+test-results
+playwright-report
+
+# storybook stories are dev-only
+**/*.stories.*
+
+**/.DS_Store

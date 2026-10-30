@@ -1,0 +1,15 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import ReactServerEntry from "@/components/ReactServerEntry.astro";
+
+// Auth gate, direct-hit half (the route's beforeLoad covers client navigation).
+if (!Astro.locals.user) {
+  return Astro.redirect(
+    `/sign-in?redirect=${encodeURIComponent(Astro.url.pathname)}`,
+  );
+}
+---
+
+<Layout title="New entry · Guestbook" noindex>
+  <ReactServerEntry />
+</Layout>

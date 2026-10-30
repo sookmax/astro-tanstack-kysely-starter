@@ -1,0 +1,11 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { ErrorView } from "@/react/components/ErrorView";
+---
+
+{/* Static: no router, so ErrorView renders as plain HTML (no client JS). */}
+<Layout title="Not found · Guestbook">
+  <main class="mx-auto w-full max-w-xl px-4 py-10">
+    <ErrorView statusCode={404} />
+  </main>
+</Layout>
